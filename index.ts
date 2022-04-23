@@ -11,7 +11,10 @@ dotenv.config();
 const APP = express();
 const PORT: number = 3000;
 
-APP.get('/', (req: any, res: any) => res.send('UCSB AIChE LinkedIn Bot!'));
+APP.get('/', (req: any, res: any) => {
+    console.log("Get request");
+    res.send('Square Footage Bot!')
+});
 APP.listen(PORT, () => console.log(`Closet bot app listening at http://localhost:${PORT}`));
 
 const client = new Discord.Client({
