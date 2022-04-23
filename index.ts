@@ -83,7 +83,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                     globalClosetSpace += tenant.ft;
                 }
             });
-            embed.setTitle(`Dylan's Future Closet Tenants - ${globalClosetSpace} ft^2 large`);
+            embed.setTitle(`Dylan's Future Closet Tenants - ${globalClosetSpace.toFixed(3)} ft^2 large`);
             channel.send({ embeds: [embed] });
         }
     } else if (msg.author.id === landlordID) {
