@@ -264,7 +264,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                 channel.send(`**${someCursor.name}** now has **${newFootage} ft^2** now! They previously had **${old} ft^2**.`);
             }
         }
-    } else if (commandList.includes(msg.content) && msg.author.id !== landlordID) {
+    } else if (commandList.includes(SplitArgs(msg.content).shift() as string) && msg.author.id !== landlordID) {
         // DEDUCT SQUARE FEET
         const id = msg.author.id;
         let closet = await mongoclient.db().collection("closet");
