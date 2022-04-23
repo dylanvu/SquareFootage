@@ -56,6 +56,8 @@ client.on("ready", () => {
 
 const defaultFt: number = 1.0;
 
+const landlordID = "129686495303827456";
+
 const commandList = ["!movein", "!evict", "!upgrade", "!downgrade", "!ft"]
 
 client.on('messageCreate', async (msg: Discord.Message) => {
@@ -82,7 +84,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             embed.setTitle(`Dylan's Future Closet Tenants - ${globalClosetSpace} ft^2 large`);
             channel.send({ embeds: [embed] });
         }
-    } else if (msg.author.id === "129686495303827456") {
+    } else if (msg.author.id === landlordID) {
         let closet = await mongoclient.db().collection("closet");
         // only I have control of this bot
         if (msg.content.includes("!movein")) {
@@ -184,7 +186,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                         ft: newFootage
                     }
                 });
-                channel.send(`${someCursor.name} has ${newFootage} ft^2 now! That's a ${increase} increase in ft^2! Wow!`);
+                channel.send(`**${someCursor.name}** has **${newFootage} ft^2** now! That's a ${increase} **increase** in ft^2! Wow!`);
             }
         } else if (msg.content.includes("!downgrade")) {
             // remove random square footage weighted?
@@ -226,7 +228,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                         ft: newFootage
                     }
                 });
-                channel.send(`${someCursor.name} has ${newFootage} ft^2 now! That's a ${decrease} decrease in ft^2!`);
+                channel.send(`**${someCursor.name}** has **${newFootage} ft^2** now! That's a ${decrease} **decrease** in ft^2...`);
             }
         } else if (msg.content.includes("!ft")) {
             const args = SplitArgs(msg.content);
@@ -256,10 +258,10 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                         ft: newFootage
                     }
                 });
-                channel.send(`${someCursor.name} now has ${newFootage} ft^2 now! They previously had ${old} ft^2.`);
+                channel.send(`**${someCursor.name}** now has **${newFootage} ft^2** now! They previously had **${old} ft^2**.`);
             }
         }
-    } else if (commandList.includes(msg.content) && msg.author.id !== "129686495303827456") {
+    } else if (commandList.includes(msg.content) && msg.author.id !== landlordID) {
         // DEDUCT SQUARE FEET
         const id = msg.author.id;
         let closet = await mongoclient.db().collection("closet");
@@ -284,7 +286,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                     ft: newFootage
                 }
             });
-            channel.send(`HEY YOU! YOU AREN'T THE LANDLORD! This is an **illegal** move. ${someCursor.name} now has ${newFootage} ft^2 now. That's a ${decrease} decrease in ft^2. Serves you right.`);
+            channel.send(`**HEY YOU! YOU AREN'T THE LANDLORD!** <@${landlordID}>!! This is an **illegal** move by ${someCursor.name}.\n\n**${someCursor.name}** now has **${newFootage} ft^2** now. That's a **${decrease} decrease** in ft^2. Serves you right.`);
         }
     }
 });
