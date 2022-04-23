@@ -12,11 +12,21 @@ export const ParseMention = (message: string): string => {
 /**
  * 
  * @param message the message to parse
- * @returns an array of arguments passed into the command
+ * @returns an array of arguments passed into the command without the command
  */
 export const SplitArgs = (message: string): string[] => {
     const args = message.split(" ");
     args.shift(); // remove out the command
+    return args;
+}
+
+/**
+ * 
+ * @param message message to parse
+ * @returns an array of arguments passed into the command with the command
+ */
+export const SplitArgsWithCommand = (message: string): string[] => {
+    const args = message.split(" ");
     return args;
 }
 

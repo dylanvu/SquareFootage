@@ -1,10 +1,9 @@
-import { ParseMention, SplitArgs, RandomFt } from './util';
+import { ParseMention, SplitArgs, SplitArgsWithCommand, RandomFt } from './util';
 import { tenant } from './interface';
 import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
-import e from 'express';
 
 dotenv.config();
 
@@ -264,7 +263,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                 channel.send(`**${someCursor.name}** now has **${newFootage} ft^2** now! They previously had **${old} ft^2**.`);
             }
         }
-    } else if (commandList.includes(SplitArgs(msg.content).shift() as string) && msg.author.id !== landlordID) {
+    } else if (commandList.includes(SplitArgsWithCommand(msg.content).shift() as string) && msg.author.id !== landlordID) {
         // DEDUCT SQUARE FEET
         const id = msg.author.id;
         let closet = await mongoclient.db().collection("closet");
