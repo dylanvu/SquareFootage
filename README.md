@@ -1,6 +1,8 @@
 # SquareFootage
 A Discord Bot for Keeping Track of the Closet Space I Owe People (Inside Joke)
 
+I speed coded this in like 2 hours so it's not too organized or well thought out.
+
 ## Commands
 - !movein [discord user mention] [name]: adds the user to the closet list
 - !evict [discord user mention]: removes the user from the closet list
