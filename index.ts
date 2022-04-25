@@ -1,5 +1,6 @@
 import { ParseMention, SplitArgs, SplitArgsWithCommand, RandomFt } from './util';
 import { tenant } from './interface';
+import { ResetLabor } from './bin/cron';
 import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
@@ -56,12 +57,21 @@ client.on("ready", () => {
     console.log(`Logged in as ${client.user?.tag}!`); // Use ? to enable this to be undefined: https://stackoverflow.com/questions/37632760/what-is-the-question-mark-for-in-a-typescript-parameter-name
 });
 
-const defaultFt: number = 1.0;
+// Queue up the job refreshing
+ResetLabor(mongoclient);
+
+// CONSTANTS
+const defaultFt: number = 1.0; // starting out square footage
+const defaultMoney: number = 0; // starting out money
+const wage: number = 14; // minimum wage in California 2022 
+const debtAdjustment: number = 0.5; // if the person owes square footage, take this amount toward paying off the debt
+const costPerSqFt: number = 280 // cost per square foot. Refernce: after 2 hours or $28 you can get somewhere between 0.01 and 0.1 square feet
 
 const landlordID = "129686495303827456";
 
 const commandList = ["!movein", "!evict", "!upgrade", "!downgrade", "!ft"]
 
+// message
 client.on('messageCreate', async (msg: Discord.Message) => {
     // console.log(msg.content);
     // console.log(msg.author);
@@ -78,13 +88,40 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             embed.setDescription("No one's gonna live in Dylan's closet... sadge.");
         } else {
             await allTenants.forEach((tenant) => {
-                embed.addField(tenant.name, tenant.ft + " ft^2");
+                embed.addField(tenant.name, `${tenant.ft} ft^2 \n $${tenant.money} in bank account`);
                 if (tenant.ft > 0) {
                     globalClosetSpace += tenant.ft;
                 }
             });
             embed.setTitle(`Dylan's Future Closet Tenants - ${globalClosetSpace.toFixed(3)} ft^2 large`);
             channel.send({ embeds: [embed] });
+        }
+    } else if (msg.content === "!work") {
+        // work for minimum wage
+        // check if person is in the closet
+        // check if the person is in debt
+        // give them the appropriate amount
+        const id = msg.author.id;
+        let closet = await mongoclient.db().collection("closet");
+        const userCursor = await closet.findOne({ id: id });
+        if (!userCursor) {
+            msg.reply("You don't appear to own square feet in Dylan's closet! Ask him to move you in.")
+        } else {
+            // check if person has worked
+            if (userCursor.worked) {
+                channel.send(`${userCursor.name}, you've already worked this hour! Wait until the next hour comes.`);
+                console.log(`${userCursor.name} has already worked`)
+            } else {
+                // add money
+                const oldMoney = userCursor.money;
+                await closet.updateOne({ id: id }, {
+                    $set: {
+                        money: oldMoney + wage,
+                        worked: true
+                    }
+                });
+                channel.send(`${userCursor.name} has worked! They made $${wage} and now have $${oldMoney + wage} in their bank account!`)
+            }
         }
     } else if (msg.author.id === landlordID) {
         let closet = await mongoclient.db().collection("closet");
@@ -113,7 +150,9 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                     await closet.insertOne({
                         id: id,
                         name: name,
-                        ft: defaultFt
+                        ft: defaultFt,
+                        money: defaultMoney,
+                        worked: false
                     } as tenant);
                     // send verification message
                     channel.send(`${name} has moved into Dylan's closet!`);
@@ -299,3 +338,16 @@ client.on('debug', debug => {
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
+
+/**
+ * Future features
+ * - Gambling (guessing a coin flip result) and putting in money
+ *      - Check if user is part of the closet and has not gambled in the past hour
+ *      - Every hour reset the gambling cooldown
+ *      - Parse command to get the guess and the amount wagered
+ *      - RNG 1 or 2 and send the appropriate GIF and then delete it, or have the bot mass edit its own comment until it lands on the actual guess)
+ * - Rent (?)
+ * - "Working" (hourly claim of money minimum wage) (if you're in debt half of the money goes toward paying back your square feet)
+ * - Trading square feet for money
+ * - Donating money and/or square feet
+ */

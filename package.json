@@ -19,12 +19,14 @@
   },
   "homepage": "https://github.com/vu-dylan/SquareFootage#readme",
   "dependencies": {
+    "cron": "^1.8.2",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "mongodb": "^4.5.0"
   },
   "devDependencies": {
+    "@types/cron": "^1.7.3",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.25"
   }
