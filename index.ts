@@ -6,6 +6,7 @@ import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
+const { exec } = require("child_process");
 
 dotenv.config();
 
@@ -335,7 +336,10 @@ client.on('messageCreate', async (msg: Discord.Message) => {
 
 // debug
 client.on('debug', debug => {
-    console.log(debug)
+    console.log(debug);
+    if (debug.includes("429")) { // 429 is a rate limit, kill replit if it is rate limited
+        exec("kill 1");
+    }
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
