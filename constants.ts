@@ -124,7 +124,7 @@ export const jobs = [
     "folded 60 cardboard boxes",
     "babysat some cats for an hour without losing a single one",
     "babysat a couple of dogs for a bit",
-    "run around town and picked up a bunch of loose change",
+    "ran around town and picked up a bunch of loose change",
     "created a viral YouTube video and made some money off the ad revenue",
     "mopped some floors around ENGR II for fun and got tipped by a grateful janitor",
     "scammed a bunch of ChemE freshmen out of their money",
@@ -161,5 +161,16 @@ export const jobs = [
     "decided to try their luck on Twitch. After streaming for about an hour with 0 viewers, MrBeast, for his next video, was going around Twitch asking 10 obscure trivia questions to various streamers for the choice between $1,000,000 or 10 square feet in Dylan's closet. Unfortunately, all 10 questions were horrifically bombed. Taking pity, MrBeast donated some money",
     "got asked to serve as an extra in a student-produced film",
     "found themselves stuck in the middle of movie scene being filmed in Goleta. Too awkward to leave, they blended in as a movie extra and got compensated at the end of the scene",
-    "wrote some other \"funny\" (questionable) working statements for Dylan"
+    "wrote some \"funny\" (questionable) !work responses for Dylan",
+    "got paid to do Mastering Physics HW for Dylan",
+    "was compensated by UCSB AIChE for agreeing to get pizza from Costco for the rest of the quarter",
+    "published a book of self deprececating humor which became a bestseller for how accurate it described them",
+    "set a new world record for most volume of tears cried after they saw the latest grade on their lab report and was paid by Guiness World Records",
+    "got a certificate and small prize for knowing 100 digits of pi",
+    "discovered a new type of rock and submitted it to the International Rock Committee. The committee, overjoyed, gave a cash prize. Little did they know, the rock was actually a hardened piece of candy, but it was too late",
+    "hid toy eggs for a local church's scavenger hunt for toddlers. Normally, the church gives $40 but unfortunately some of the money got hidden in the eggs instead",
+    "smuggled illegal candy through the airport for a dealer, who compensated handsomely",
+    "threatened a kid with a lecture on fluid mechanics if they didn't cough up some cash right there and then",
+    "got a mysterious email from a Nigerian prince named Abdullahi Ahmed Sumaila. Prince Abdullahi Ahmed Sumaila his lordship was stuck in Kyrgyzstan for a diplomatic meeting and desperately needed to bankwire his pet octopus his allowance to buy a new type of rock from the International Rock Committee. However, Prince Abdullahi Ahmed Sumaila his lordship forgot the password to his bank account. He only had Venmo access. In exchange for a net profit, Prince Abdullahi Ahmed Sumaila his lordship asked for a small Venmo payment of $1,000 to @DulanVuTheLandLord. After Venmoing the money, Prince Abdullahi Ahmed Sumaila his lordship out of the kindness of his heart paid for the speedy service",
+    "volunteered with the Dulan Foundation and entered into a cash prize raffle. With a whopping 0 other participants in the lottery, the cash prize was won"
 ]
