@@ -164,7 +164,7 @@ export const jobs = [
     "wrote some \"funny\" (questionable) !work responses for Dylan",
     "got paid to do Mastering Physics HW for Dylan",
     "was compensated by UCSB AIChE for agreeing to get pizza from Costco for the rest of the quarter",
-    "published a book of self deprececating humor which became a bestseller for how accurate it described them",
+    "published a book of self deprececating humor which became a bestseller for the most interesting autobiography in the world for 1 hour",
     "set a new world record for most volume of tears cried after they saw the latest grade on their lab report and was paid by Guiness World Records",
     "got a certificate and small prize for knowing 100 digits of pi",
     "discovered a new type of rock and submitted it to the International Rock Committee. The committee, overjoyed, gave a cash prize. Little did they know, the rock was actually a hardened piece of candy, but it was too late",
@@ -172,5 +172,6 @@ export const jobs = [
     "smuggled illegal candy through the airport for a dealer, who compensated handsomely",
     "threatened a kid with a lecture on fluid mechanics if they didn't cough up some cash right there and then",
     "got a mysterious email from a Nigerian prince named Abdullahi Ahmed Sumaila. Prince Abdullahi Ahmed Sumaila his lordship was stuck in Kyrgyzstan for a diplomatic meeting and desperately needed to bankwire his pet octopus his allowance to buy a new type of rock from the International Rock Committee. However, Prince Abdullahi Ahmed Sumaila his lordship forgot the password to his bank account. He only had Venmo access. In exchange for a net profit, Prince Abdullahi Ahmed Sumaila his lordship asked for a small Venmo payment of $1,000 to @DulanVuTheLandLord. After Venmoing the money, Prince Abdullahi Ahmed Sumaila his lordship out of the kindness of his heart paid for the speedy service",
-    "volunteered with the Dulan Foundation and entered into a cash prize raffle. With a whopping 0 other participants in the lottery, the cash prize was won"
+    "volunteered with the Dulan Foundation and entered into a cash prize raffle. With a whopping 0 other participants in the lottery, the cash prize was won",
+    "got invited to speak at the Global Conference for Stressed Out Students (GCSOS) and a particularly moved listener gave some money as thanks for the talk"
 ]
