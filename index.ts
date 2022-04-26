@@ -1,3 +1,4 @@
+import { jobs } from './constants';
 import { ParseMention, SplitArgs, SplitArgsWithCommand, RandomFt } from './util';
 import { tenant } from './interface';
 import { ResetLabor } from './bin/cron';
@@ -120,7 +121,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                         worked: true
                     }
                 });
-                channel.send(`${userCursor.name} has worked! They made $${wage} and now have $${oldMoney + wage} in their bank account!`)
+                channel.send(`${userCursor.name} ${jobs[Math.floor(Math.random() * jobs.length)]}. They made $${wage} and now have $${oldMoney + wage} in their bank account!`)
             }
         }
     } else if (msg.author.id === landlordID) {
