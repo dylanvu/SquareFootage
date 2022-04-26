@@ -147,7 +147,7 @@ export const jobs = [
     "insisted on guiding an old lady across campus to visit her grandchild in Anacapa. Grateful, the old lady gave $4, but mistakingly slipped in $10 on top of that",
     "offered their protection services to a young Freshman to protect them from the bands of raccoons roaming campus",
     "fixed up someone's broken bike",
-    "was walking to class when a doordash driver nearly crashing into them. A tragedy, but the doordash order of soup was going to get cold! So, they took over the doordash order instead, driving to Santa Barbara and receiving a generous tip from the millionaire that ordered the soup",
+    "was walking to class when a doordash driver nearly crashed into them, hitting a wall instead. A tragedy, but the doordash order of soup was going to get cold! So, they took over the doordash order instead, driving to Santa Barbara and receiving a generous tip from the millionaire that ordered the soup",
     "bought a large Costco Pizza and sold it for a profit per-slice on campus",
     "stole food from the dining commons and sold it to the desperate people stuck in lab",
     "bought a cheap hoodie, drew \"UCSB College of Engineering\" on it in dry erase marker, marketed it as \"official UCSB merchandise\", then sold it to a clueless prospective student visiting campus",
@@ -175,5 +175,8 @@ export const jobs = [
     "volunteered with the Dulan Foundation and entered into a cash prize raffle. With a whopping 0 other participants in the lottery, the cash prize was won",
     "got invited to speak at the Global Conference for Stressed Out Students (GCSOS) and a particularly moved listener gave some money as thanks for the talk",
     "got run over by a group of freshmen on their bikes and was paid to not sue them",
-    "participated on a bet that they couldn't ride their bike without hands for more than 1 yard. After riding for 1.01 yards without hands, falling over, and getting concussed, the money was hesitantly forked over. Hey, money's money right? The bank account is now heavier with more cash"
+    "participated in a bet that they couldn't ride their bike without hands for more than 1 yard. After riding for 1.01 yards without hands, falling over, and getting concussed, the money was hesitantly forked over. Hey, money's money right? The bank account is now heavier with more cash",
+    "made a bunch of balloon animals for the kids near IV elementary, some UCSB seniors, and a few professors",
+    "found a semi-rare Pokemon card at Goodwill and auctioned it off online",
+    "sold some old textbooks to underclassmen for a few dollars"
 ]
