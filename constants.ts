@@ -11,7 +11,7 @@ export const costPerSqFt: number = 280 // cost per square foot. Refernce: after 
 
 export const landlordID = "129686495303827456"; // the master of the closet
 
-export const commandList = ["!movein", "!evict", "!upgrade", "!downgrade", "!ft"] // commands that will deduct square feet if used by a tenant
+export const commandList = ["!movein", "!evict", "!upgrade", "!downgrade", "!ft", "!resetwork"] // commands that will deduct square feet if used by a tenant
 
 // lists of things
 
