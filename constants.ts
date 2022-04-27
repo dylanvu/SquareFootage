@@ -1,4 +1,21 @@
-const roles: { role: string, price: number }[] = [
+// SOFTWARE CONSTANTS
+export const mongoDBcollection = "closet"; // the collection on mongodb to store the data
+
+// GAMEPLAY CONSTANTS
+export const defaultFt: number = 1.0; // starting out square footage
+export const defaultMoney: number = 0; // starting out money
+export const wage: number = 14; // minimum wage in California 2022 
+export const debtAdjustment: number = 0.5; // if the person owes square footage, take this amount toward paying off the debt
+export const costPerSqFt: number = 280 // cost per square foot. Refernce: after 2 hours or $28 you can get somewhere between 0.01 and 0.1 square feet
+
+export const landlordID = "129686495303827456"; // the master of the closet
+
+export const commandList = ["!movein", "!evict", "!upgrade", "!downgrade", "!ft"] // commands that will deduct square feet if used by a tenant
+
+// lists of things
+
+// roles able to be bought
+export const roles: { role: string, price: number }[] = [
     {
         role: "Switched 180A to PNP",
         price: 3
@@ -116,7 +133,7 @@ const roles: { role: string, price: number }[] = [
         price: 1000000000
     },
 ]
-
+// responses to the types of jobs you can do when you do !work
 export const jobs = [
     "streamed on Twitch and got a lucky donation from a viewer",
     "sold some sourdough rolls they baked the night before",
