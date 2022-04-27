@@ -1,7 +1,7 @@
 import { jobs } from './constants';
 import { ParseMention, SplitArgs, SplitArgsWithCommand, RandomFt } from './util';
 import { tenant } from './interface';
-import { ResetLabor } from './bin/cron';
+import { ResetLabor, resetWorked } from './bin/cron';
 import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
@@ -303,6 +303,8 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                 });
                 channel.send(`**${someCursor.name}** now has **${newFootage} ft^2** now! They previously had **${old} ft^2**.`);
             }
+        } else if (msg.content === "!resetLabor") {
+            resetWorked(mongoclient)
         }
     } else if (commandList.includes(SplitArgsWithCommand(msg.content).shift() as string) && msg.author.id !== landlordID) {
         // DEDUCT SQUARE FEET
