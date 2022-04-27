@@ -49,7 +49,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
     } else {
         // check if person has worked
         if (userCursor.worked) {
-            channel.send(`${userCursor.name}, you've already worked this hour! Wait until the next hour comes.`);
+            channel.send(`**${userCursor.name}**, you've already worked this hour! Wait until the next hour comes.`);
             console.log(`${userCursor.name} has already worked`)
         } else {
             // add money
@@ -76,7 +76,7 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
     } else {
         // check if person has gambled the maximum number of times already
         if (userCursor.gambleCount >= maxGamble) {
-            channel.send(`${userCursor.name}, you've already gambled too much this hour! Let's not develop any gambling addictions, ok? :D`);
+            channel.send(`**${userCursor.name}**, you've already gambled too much this hour! Let's not develop any gambling addictions, ok? :D`);
             console.log(`${userCursor.name} has already gambled maximum amount of times`)
         } else {
             // arguments should be like: !gamble <result> <amount>
