@@ -122,7 +122,7 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
                     const oldMoney = userCursor.money;
                     await closet.updateOne({ id: id }, {
                         $set: {
-                            gamble: currGamble + 1,
+                            gambleCount: currGamble + 1,
                             money: oldMoney + adjustment
                         }
                     });
