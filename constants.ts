@@ -5,6 +5,7 @@ export const mongoDBcollection = "closet"; // the collection on mongodb to store
 export const defaultFt: number = 1.0; // starting out square footage
 export const defaultMoney: number = 0; // starting out money
 export const wage: number = 14; // minimum wage in California 2022 
+export const range: number = 1; // when you work, you can get wage +- range. For example, 14 +- 1.
 export const debtAdjustment: number = 0.5; // if the person owes square footage, take this amount toward paying off the debt
 export const costPerSqFt: number = 280 // cost per square foot. Refernce: after 2 hours or $28 you can get somewhere between 0.01 and 0.1 square feet
 

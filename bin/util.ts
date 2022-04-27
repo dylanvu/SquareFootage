@@ -43,3 +43,13 @@ export const RandomFt = (weight: number): number => {
     const random = Math.random() * base * factor;
     return parseFloat(random.toFixed(3));
 }
+
+/**
+ * Generates a random integer between low and high (inclusive on both ends)
+ * @param low lower bound
+ * @param high upper bound
+ * @returns random number
+ */
+export const randomNumber = (low: number, high: number): number => {
+    return Math.floor(Math.random() * (high - low + 1) + low)
+}

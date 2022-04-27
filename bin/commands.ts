@@ -1,7 +1,7 @@
 import * as mongo from 'mongodb';
 import * as Discord from 'discord.js';
-import { jobs, defaultFt, defaultMoney, wage } from '../constants';
-import { ParseMention, SplitArgs, SplitArgsWithCommand, RandomFt } from './util';
+import { jobs, defaultFt, defaultMoney, wage, range } from '../constants';
+import { ParseMention, SplitArgs, RandomFt, randomNumber } from './util';
 import { tenant } from '../interface';
 
 /**
@@ -37,7 +37,7 @@ export const showTenants = async (mongoclient: mongo.MongoClient, channel: Disco
  * @param msg message object to get user id from
  */
 export const work = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
-    // work for minimum wage
+    // work for minimum wage !work
     // check if person is in the closet
     // check if the person is in debt
     // give them the appropriate amount
@@ -54,13 +54,14 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
         } else {
             // add money
             const oldMoney = userCursor.money;
+            const newMoney = randomNumber(wage - range, wage + range); // generate a random wage
             await closet.updateOne({ id: id }, {
                 $set: {
-                    money: oldMoney + wage,
+                    money: oldMoney + newMoney,
                     worked: true
                 }
             });
-            channel.send(`**${userCursor.name}** ${jobs[Math.floor(Math.random() * jobs.length)]}. They made $${wage} and now have $${oldMoney + wage} in their bank account!`)
+            channel.send(`**${userCursor.name}** ${jobs[Math.floor(Math.random() * jobs.length)]}. They made $${newMoney} and now have $${oldMoney + newMoney} in their bank account!`)
         }
     }
 }
