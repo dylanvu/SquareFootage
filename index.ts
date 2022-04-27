@@ -1,12 +1,12 @@
-import { mongoDBcollection, defaultFt, defaultMoney, wage, landlordID, commandList } from './constants';
-import { ParseMention, SplitArgs, SplitArgsWithCommand, RandomFt } from './bin/util';
+import { mongoDBcollection, defaultFt, landlordID, commandList } from './constants';
+import { SplitArgsWithCommand, RandomFt } from './bin/util';
 import { tenant } from './interface';
-import { ResetLabor, resetWorked } from './bin/cron';
+import { scheduleReset, reset } from './bin/cron';
 import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
-import { showTenants, work, movein, evict, upgrade, downgrade, ft } from './bin/commands';
+import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble } from './bin/commands';
 const { exec } = require("child_process");
 
 dotenv.config();
@@ -61,7 +61,7 @@ client.on("ready", () => {
 });
 
 // Queue up the job refreshing
-ResetLabor(mongoclient);
+scheduleReset(mongoclient);
 
 // message
 client.on('messageCreate', async (msg: Discord.Message) => {
@@ -73,6 +73,8 @@ client.on('messageCreate', async (msg: Discord.Message) => {
         showTenants(mongoclient, channel);
     } else if (msg.content === "!work") {
         work(mongoclient, channel, msg)
+    } else if (msg.content.includes("!gamble")) {
+        gamble(mongoclient, channel, msg);
     } else if (msg.author.id === landlordID) {
         let closet = await mongoclient.db().collection(mongoDBcollection);
         // only the landlord has full control of this bot
@@ -86,9 +88,9 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             downgrade(closet, channel, msg);
         } else if (msg.content.includes("!ft")) {
             ft(closet, channel, msg);
-        } else if (msg.content === "!resetwork") {
-            resetWorked(mongoclient);
-            channel.send("Labor should have been reset! Everyone should be able to work again.");
+        } else if (msg.content === "!resethourly") {
+            reset(mongoclient);
+            channel.send("Labor and gambling should have been reset! Everyone should be able to work and gamble again.");
         }
     } else if (commandList.includes(SplitArgsWithCommand(msg.content).shift() as string) && msg.author.id !== landlordID) {
         // DEDUCT SQUARE FEET

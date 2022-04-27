@@ -10,8 +10,14 @@ export const debtAdjustment: number = 0.5; // if the person owes square footage,
 export const costPerSqFt: number = 280 // cost per square foot. Refernce: after 2 hours or $28 you can get somewhere between 0.01 and 0.1 square feet
 
 export const landlordID = "129686495303827456"; // the master of the closet
+export const landlordName = "Dylan";
 
-export const commandList = ["!movein", "!evict", "!upgrade", "!downgrade", "!ft", "!resetwork"] // commands that will deduct square feet if used by a tenant
+export const commandList = ["!movein", "!evict", "!upgrade", "!downgrade", "!ft", "!resethourly"] // commands that will deduct square feet if used by a tenant
+
+export const maxGamble: number = 5; // maximum number of times tenants can gamble per hour
+export const heads = ["h", "heads", "head"];
+export const tails = ["t", "tails", "tail"];
+export const validGamblingArgs: string[] = heads.concat(tails); // valid arguments to gamble to check. Should be lowercase.
 
 // lists of things
 

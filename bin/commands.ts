@@ -1,6 +1,6 @@
 import * as mongo from 'mongodb';
 import * as Discord from 'discord.js';
-import { jobs, defaultFt, defaultMoney, wage, range } from '../constants';
+import { jobs, defaultFt, defaultMoney, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails } from '../constants';
 import { ParseMention, SplitArgs, RandomFt, randomNumber } from './util';
 import { tenant } from '../interface';
 
@@ -11,21 +11,21 @@ import { tenant } from '../interface';
  */
 export const showTenants = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel) => {
     let closet = await mongoclient.db().collection("closet");
-    // get list of all tenants and square footage, anyone can do this
+    // get list of all tenants and square footage, anyone can do this !tenants
     // embed message
     let embed: Discord.MessageEmbed = new Discord.MessageEmbed().setColor("#F1C40F")
     let globalClosetSpace = 0;
     const allTenants = await closet.find();
     if ((await closet.estimatedDocumentCount()) === 0) {
-        embed.setDescription("No one's gonna live in Dylan's closet... sadge.");
+        embed.setDescription(`No one's gonna live in ${landlordName}'s closet... sadge.`);
     } else {
         await allTenants.forEach((tenant) => {
-            embed.addField(tenant.name, `${tenant.ft} ft^2 \n $${tenant.money} in bank account`);
+            embed.addField(tenant.name, `${tenant.ft} ft^2 \n$${tenant.money} in bank account\n${maxGamble - tenant.gambleCount} gambles remaining`);
             if (tenant.ft > 0) {
                 globalClosetSpace += tenant.ft;
             }
         });
-        embed.setTitle(`Dylan's Future Closet Tenants - ${globalClosetSpace.toFixed(3)} ft^2 large`);
+        embed.setTitle(`${landlordName}'s Future Closet Tenants - ${globalClosetSpace.toFixed(3)} ft^2 large`);
         channel.send({ embeds: [embed] });
     }
 }
@@ -45,7 +45,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
     let closet = await mongoclient.db().collection("closet");
     const userCursor = await closet.findOne({ id: id });
     if (!userCursor) {
-        msg.reply("You don't appear to own square feet in Dylan's closet! Ask him to move you in.")
+        msg.reply(`You don't appear to own square feet in ${landlordName}'s closet! Ask him to move you in.`)
     } else {
         // check if person has worked
         if (userCursor.worked) {
@@ -64,6 +64,79 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
             channel.send(`**${userCursor.name}** ${jobs[Math.floor(Math.random() * jobs.length)]}. They made $${newMoney} and now have $${oldMoney + newMoney} in their bank account!`)
         }
     }
+}
+
+export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
+    // check if user is in the closet
+    const id = msg.author.id;
+    let closet = await mongoclient.db().collection("closet");
+    const userCursor = await closet.findOne({ id: id });
+    if (!userCursor) {
+        msg.reply(`You don't appear to own square feet in ${landlordName}'s closet! Ask him to move you in before you can gamble.`)
+    } else {
+        // check if person has gambled the maximum number of times already
+        if (userCursor.gambleCount >= maxGamble) {
+            channel.send(`${userCursor.name}, you've already gambled too much this hour! Let's not develop any gambling addictions, ok? :D`);
+            console.log(`${userCursor.name} has already gambled maximum amount of times`)
+        } else {
+            // arguments should be like: !gamble <result> <amount>
+            const args = SplitArgs(msg.content);
+            if (args.length <= 1) {
+                channel.send(`**${userCursor.name}**, both a result and an amount of money to bet must be specified`);
+                return;
+            } else {
+                // check inputs
+                const moneyBet = parseInt(args[1]); // moneybet
+                const outcomeBet = args[0].toLowerCase(); // result bet
+                if (isNaN(moneyBet)) {
+                    // check if bet is a number
+                    channel.send(`**${userCursor.name}**, ${moneyBet} is not a number.`);
+                } else if (!validGamblingArgs.includes(outcomeBet)) {
+                    // check if proposed outcome is valid
+                    channel.send(`**${userCursor.name}**, ${outcomeBet} is not a valid option. Choose one of the following: ${validGamblingArgs}`);
+                } else {
+                    // create random number
+                    const outcome = randomNumber(0, 1); // let 0 be heads, 1 be tails
+                    let win = false; // flag if won
+                    let adjustment = -1 * moneyBet; // how much to add or subtract by
+                    if (outcome === 0) {
+                        // heads
+                        channel.send("**HEADS**");
+                        if (heads.includes(outcomeBet)) {
+                            win = true;
+                        }
+                    }
+                    if (outcome === 1) {
+                        channel.send("**TAILS**");
+                        if (tails.includes(outcomeBet)) {
+                            win = true;
+                        }
+                    }
+
+                    if (win) {
+                        adjustment = -1 * adjustment; // make this a positive number to add cash
+                    }
+
+                    // increment gambling count
+                    const currGamble = userCursor.gambleCount;
+                    const oldMoney = userCursor.money;
+                    await closet.updateOne({ id: id }, {
+                        $set: {
+                            gamble: currGamble + 1,
+                            money: oldMoney + adjustment
+                        }
+                    });
+                    // send the messages
+                    if (win) {
+                        channel.send(`**${userCursor.name}**, you guessed correctly! You made ${adjustment} and now have ${oldMoney + adjustment} in your bank account!\n\nYou can gamble ${maxGamble - (currGamble + 1)} more times this hour.`);
+                    } else {
+                        channel.send(`**${userCursor.name}**, you guessed incorrectly. You lost ${-1 * adjustment} and now have ${oldMoney + adjustment} in your bank account... sadge\n\nYou can gamble ${maxGamble - (currGamble + 1)} more times this hour.`);
+                    }
+                }
+            }
+        }
+    }
+    // TODO: create like an array of length 10 and then spam edit with alternating heads/tails to simulate flipping, then end on **result** in bold. Maybe about 5 edits per second -> 3 seconds in length?
 }
 
 // LANDLORD COMMANDS
@@ -103,7 +176,7 @@ export const movein = async (collection: mongo.Collection, channel: Discord.Text
                 worked: false
             } as tenant);
             // send verification message
-            channel.send(`${name} has moved into Dylan's closet!`);
+            channel.send(`${name} has moved into ${landlordName}'s closet!`);
         }
     }
 }
