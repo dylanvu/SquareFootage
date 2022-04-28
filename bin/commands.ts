@@ -20,7 +20,7 @@ export const showTenants = async (mongoclient: mongo.MongoClient, channel: Disco
         embed.setDescription(`No one's gonna live in ${landlordName}'s closet... sadge.`);
     } else {
         await allTenants.forEach((tenant) => {
-            embed.addField(tenant.name, `${tenant.ft} ft^2 \n$${tenant.money} in bank account\n${maxGamble - tenant.gambleCount} gambles remaining`);
+            embed.addField(tenant.name, `${tenant.ft} ft^2 \n$${(tenant.money).toLocaleString()} in bank account\n${maxGamble - tenant.gambleCount} gambles remaining`);
             if (tenant.ft > 0) {
                 globalClosetSpace += tenant.ft;
             }
@@ -94,7 +94,7 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
             } else {
                 // check if the user owes money
                 if (userCursor.money < 0) {
-                    channel.send(`**${userCursor.name}**, you can't gamble while owing **$${-1 * userCursor.money}**! Go to work you bum. (Or ask the landlord to reset your money if the debt is impossible to pay off)`);
+                    channel.send(`**${userCursor.name}**, you can't gamble while owing **$${(-1 * userCursor.money).toLocaleString()}**! Go to work you bum. (Or ask the landlord to reset your money if the debt is impossible to pay off)`);
                     return;
                 }
 
@@ -180,10 +180,10 @@ export const buy = async (mongoclient: mongo.MongoClient, channel: Discord.TextC
         embed.setTitle(`Possible Roles to Buy and Price`);
         embed.setDescription('Use !buy [role name] (case and space sensitive) to purchase a title');
         for (const role of roles) {
-            embed.addField(role.role, `$${role.price}`);
+            embed.addField(role.role, `$${(role.price).toLocaleString()}`);
             i++
             if (i >= 25) {
-                console.log("creating new embed")
+                console.log("creating new embed");
                 // 25 field limit per embed
                 embeds.push(embed);
                 embed = new Discord.MessageEmbed().setColor("#F1C40F");
@@ -196,7 +196,6 @@ export const buy = async (mongoclient: mongo.MongoClient, channel: Discord.TextC
         for (const embed of embeds) {
             await channel.send({ embeds: [embed] });
         }
-
     } else {
         // turn the array of objects into an array of strings for the role name and array of numbers for the price. Same index.
         const roleToPurchase = args.join(" ");
