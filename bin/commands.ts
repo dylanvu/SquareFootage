@@ -49,7 +49,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
     } else {
         // check if person has worked
         if (userCursor.worked) {
-            channel.send(`**${userCursor.name}**, you've already worked this hour! Wait until the next hour comes.`);
+            channel.send(`**${userCursor.name}**, you've already worked this hour! Have some work-life balance, will you?`);
             console.log(`${userCursor.name} has already worked`)
         } else {
             // add money
@@ -176,7 +176,7 @@ export const movein = async (collection: mongo.Collection, channel: Discord.Text
                 worked: false
             } as tenant);
             // send verification message
-            channel.send(`${name} has moved into ${landlordName}'s closet!`);
+            channel.send(`**${name}** has moved into ${landlordName}'s closet!`);
         }
     }
 }
@@ -214,7 +214,7 @@ export const evict = async (collection: mongo.Collection, channel: Discord.TextC
                 id: id,
             });
             // send verification message
-            channel.send(`${name} has been **EVICTED**. No square feet for them!`);
+            channel.send(`**${name}** has been **EVICTED**. No square feet for them!`);
         }
     }
 }
