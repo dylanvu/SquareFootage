@@ -1,6 +1,6 @@
 import * as mongo from 'mongodb';
 import * as Discord from 'discord.js';
-import { jobs, defaultFt, defaultMoney, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails } from '../constants';
+import { jobs, defaultFt, defaultMoney, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails, roles } from '../constants';
 import { ParseMention, SplitArgs, RandomFt, randomNumber } from './util';
 import { tenant } from '../interface';
 
@@ -66,6 +66,13 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
     }
 }
 
+/**
+ * Flip a coin to get money
+ * @param mongoclient mongodb client
+ * @param channel channel to send feedback to
+ * @param msg message object to parse arguments and user from
+ * @returns 
+ */
 export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
     // check if user is in the closet
     const id = msg.author.id;
@@ -139,6 +146,99 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
     // TODO: create like an array of length 10 and then spam edit with alternating heads/tails to simulate flipping, then end on **result** in bold. Maybe about 5 edits per second -> 3 seconds in length?
 }
 
+/**
+ * Displays a list of purchasable roles as defined in constants.ts if no arguments, or buys a role for a tenant
+ * @param mongoclient mongodb client
+ * @param channel channel to send feedback to
+ * @param msg message to get info from
+ */
+export const buy = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
+    // !buy
+    // check if user is part of the closet
+    const collection = await mongoclient.db().collection("closet");
+    const id = msg.author.id;
+    const member = msg.member;
+    const userCursor = await collection.findOne({ id: id });
+    if (!userCursor) {
+        channel.send("Sorry, you aren't a tenant so you can't purchase anything. Please ask to be moved in.");
+        return;
+    }
+
+    const args = SplitArgs(msg.content);
+    // if no arguments, bring up the menu of purchasable roles
+    if (args.length === 0) {
+        // show menu of purchasable roles
+        let embeds: Discord.MessageEmbed[] = [];
+        let i = 0;
+        let embed: Discord.MessageEmbed = new Discord.MessageEmbed().setColor("#F1C40F");
+        embed.setTitle(`Possible Roles to Buy and Price`);
+        embed.setDescription('Use !buy [role name] (case and space sensitive) to purchase a title');
+        for (const role of roles) {
+            embed.addField(role.role, `$${role.price}`);
+            i++
+            if (i >= 25) {
+                console.log("creating new embed")
+                // 25 field limit per embed
+                embeds.push(embed);
+                embed = new Discord.MessageEmbed().setColor("#F1C40F");
+                embed.setTitle(`Possible Roles to Buy and Price Continued`);
+                i = 0;
+            }
+        }
+        embeds.push(embed);
+        // send list of roles to channel
+        for (const embed of embeds) {
+            await channel.send({ embeds: [embed] });
+        }
+
+    } else {
+        // turn the array of objects into an array of strings for the role name and array of numbers for the price. Same index.
+        const roleToPurchase = args.join(" ");
+
+        const roleNames = roles.map((role => role.role));
+        const rolePrices = roles.map((role => role.price));
+
+        if (roleNames.includes(roleToPurchase)) {
+            // check if role exists in server
+            const roleCache = msg.guild!.roles.cache;
+            const foundRole = roleCache.find(x => x.name == roleToPurchase);
+            if (!foundRole) {
+                await channel.send(`${roleToPurchase} doesn't exist as a role in the server, but it should. Have the landlord run !rolesetup`);
+                return;
+            }
+
+            // check if user already has the role
+            if (member) {
+                const userRole = member.roles.cache.some(role => role.name === roleToPurchase);
+                if (userRole) {
+                    channel.send(`**${userCursor.name}**, you already have bought ${roleToPurchase}!`);
+                    return;
+                }
+                const index = roleNames.findIndex((role) => role === roleToPurchase);
+                const deduction = rolePrices[index];
+                // check if user has enough money
+                if (userCursor.money >= deduction) {
+                    // deduct money and assign role
+                    const oldMoney = userCursor.money;
+                    member.roles.add(foundRole);
+                    await collection.updateOne({ id: id }, {
+                        $set: {
+                            money: oldMoney - deduction
+                        }
+                    });
+                    channel.send(`Congratulations, **${userCursor.name}**, you have $${oldMoney - deduction} left but also have a brand new title to flex on people: **${roleToPurchase}**`)
+                } else {
+                    await channel.send(`**${userCursor.name}**, you're too poor to buy that title! Go gamble or work some more.`);
+                }
+            } else {
+                channel.send("There was an issue with buying the role. Something broke in the code, complain to the developer that member doesn't exist");
+            }
+        } else {
+            channel.send(`**${userCursor.name}**, ${roleToPurchase} is not a valid title. Try !buy to see the entire list`);
+        }
+
+    }
+}
 // LANDLORD COMMANDS
 
 /**
@@ -352,5 +452,51 @@ export const ft = async (collection: mongo.Collection, channel: Discord.TextChan
             }
         });
         channel.send(`**${someCursor.name}** now has **${newFootage} ft^2** now! They previously had **${old} ft^2**.`);
+    }
+}
+
+/**
+ * Create all the roles in the constants.ts
+ * @param guild Discord guild object from message
+ */
+export const roleSetup = async (guild: Discord.Guild, channel: Discord.TextChannel) => {
+    // !rolesetup
+    const roleCache = guild.roles.cache;
+    let roleAdded: string[] = [];
+    for (const role of roles) {
+        if (!roleCache.find(x => x.name == role.role)) {
+            // role doesn't exist
+            await guild.roles.create({
+                name: role.role,
+                color: [randomNumber(0, 255), randomNumber(0, 255), randomNumber(0, 255)]
+            });
+            roleAdded.push(role.role)
+        } else {
+            console.log(`${role.role} already exists`);
+        }
+    }
+    if (roleAdded.length > 0) {
+        channel.send(`Roles have been created: ${roleAdded}`);
+    } else {
+        channel.send(`No new roles were created.`);
+    }
+
+}
+
+/**
+ * Delete all the roles in the constants.ts
+ * @param guild Discord guild object from message
+ */
+export const roleCleanup = async (guild: Discord.Guild) => {
+    const roleCache = guild.roles.cache;
+    for (const role of roles) {
+        const foundRole = roleCache.find(x => x.name == role.role);
+        if (foundRole) {
+            // delete
+            await guild.roles.delete(foundRole);
+            console.log(`Deleted ${role}`);
+        } else {
+            console.log(`Could not find ${role}`);
+        }
     }
 }

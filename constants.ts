@@ -1,5 +1,6 @@
 // SOFTWARE CONSTANTS
 export const mongoDBcollection = "closet"; // the collection on mongodb to store the data
+export const selfID = "967241830074814464" // id of the bot to prevent any kind of infinite loops
 
 // GAMEPLAY CONSTANTS
 export const defaultFt: number = 1.0; // starting out square footage
@@ -64,12 +65,12 @@ export const roles: { role: string, price: number }[] = [
         price: 200
     },
     {
-        role: "I Could Have Bought Closet Space About the Area of Dylan",
-        price: 500
-    },
-    {
         role: "Dylan's First Laptop Owner",
         price: 700
+    },
+    {
+        role: "I Could Have Bought Closet Space About the Area of Dylan",
+        price: 1000
     },
     {
         role: "Dylan's Current Laptop Owner",

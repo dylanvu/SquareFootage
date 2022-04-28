@@ -1,4 +1,4 @@
-import { mongoDBcollection, defaultFt, landlordID, commandList } from './constants';
+import { mongoDBcollection, defaultFt, landlordID, commandList, selfID } from './constants';
 import { SplitArgsWithCommand, RandomFt } from './bin/util';
 import { tenant } from './interface';
 import { scheduleReset, reset } from './bin/cron';
@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
-import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble } from './bin/commands';
+import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble, roleSetup, roleCleanup, buy } from './bin/commands';
 const { exec } = require("child_process");
 
 dotenv.config();
@@ -68,56 +68,74 @@ client.on('messageCreate', async (msg: Discord.Message) => {
     // console.log(msg.content);
     // console.log(msg.author);
     // console.log(ParseMention(msg.content));
-    const channel = client.channels.cache.get(msg.channelId) as Discord.TextChannel;
-    if (msg.content === "!tenants") {
-        showTenants(mongoclient, channel);
-    } else if (msg.content === "!work") {
-        work(mongoclient, channel, msg)
-    } else if (msg.content.includes("!gamble")) {
-        gamble(mongoclient, channel, msg);
-    } else if (msg.author.id === landlordID) {
-        let closet = await mongoclient.db().collection(mongoDBcollection);
-        // only the landlord has full control of this bot
-        if (msg.content.includes("!movein")) {
-            movein(closet, channel, msg);
-        } else if (msg.content.includes("!evict")) {
-            evict(closet, channel, msg);
-        } else if (msg.content.includes("!upgrade")) {
-            upgrade(closet, channel, msg);
-        } else if (msg.content.includes("!downgrade")) {
-            downgrade(closet, channel, msg);
-        } else if (msg.content.includes("!ft")) {
-            ft(closet, channel, msg);
-        } else if (msg.content === "!resethourly") {
-            reset(mongoclient);
-            channel.send("Labor and gambling should have been reset! Everyone should be able to work and gamble again.");
-        }
-    } else if (commandList.includes(SplitArgsWithCommand(msg.content).shift() as string) && msg.author.id !== landlordID) {
-        // DEDUCT SQUARE FEET
-        const id = msg.author.id;
-        let closet = await mongoclient.db().collection("closet");
-        let someCursor = await closet.findOne({ id: id });
-        if (!someCursor) {
-            // forcibly move them in
-            await closet.insertOne({
-                name: msg.author.username,
-                id: msg.author.id,
-                ft: defaultFt
-            } as tenant);
-            channel.send(`${msg.author.username} has been forcibly moved into the closet!`)
-            someCursor = await closet.findOne({ id: id }); // find again
-        }
-
-        if (someCursor) {
-            // deduct square feet
-            const decrease = RandomFt(5);
-            const newFootage = parseFloat((someCursor.ft - decrease).toFixed(5));
-            await closet.updateOne({ id: id }, {
-                $set: {
-                    ft: newFootage
+    // prevent the bot from listening to itself
+    if (msg.author.id !== selfID) {
+        const channel = client.channels.cache.get(msg.channelId) as Discord.TextChannel;
+        if (msg.content === "!tenants") {
+            showTenants(mongoclient, channel);
+        } else if (msg.content === "!work") {
+            work(mongoclient, channel, msg)
+        } else if (msg.content.includes("!gamble")) {
+            gamble(mongoclient, channel, msg);
+        } else if (msg.content.includes("!buy")) {
+            buy(mongoclient, channel, msg)
+        } else if (msg.author.id === landlordID) {
+            let closet = await mongoclient.db().collection(mongoDBcollection);
+            // only the landlord has full control of this bot
+            if (msg.content.includes("!movein")) {
+                movein(closet, channel, msg);
+            } else if (msg.content.includes("!evict")) {
+                evict(closet, channel, msg);
+            } else if (msg.content.includes("!upgrade")) {
+                upgrade(closet, channel, msg);
+            } else if (msg.content.includes("!downgrade")) {
+                downgrade(closet, channel, msg);
+            } else if (msg.content.includes("!ft")) {
+                ft(closet, channel, msg);
+            } else if (msg.content === "!resethourly") {
+                reset(mongoclient);
+                channel.send("Labor and gambling should have been reset! Everyone should be able to work and gamble again.");
+            } else if (msg.content === "!rolesetup") {
+                // create all the roles needed
+                if (msg.guild) {
+                    roleSetup(msg.guild, channel);
+                } else {
+                    console.error("msg.guild is undefined when setting up roles");
                 }
-            });
-            channel.send(`**HEY YOU! YOU AREN'T THE LANDLORD!** <@${landlordID}>!! This is an **illegal** move by ${someCursor.name}.\n\n**${someCursor.name}** now has **${newFootage} ft^2** now. That's a **${decrease} decrease** in ft^2. Serves you right.`);
+            } else if (msg.content === "!rolecleanup") {
+                if (msg.guild) {
+                    roleCleanup(msg.guild);
+                } else {
+                    console.error("msg.guild is undefined when cleaning up roles");
+                }
+            }
+        } else if (commandList.includes(SplitArgsWithCommand(msg.content).shift() as string) && msg.author.id !== landlordID) {
+            // DEDUCT SQUARE FEET
+            const id = msg.author.id;
+            let closet = await mongoclient.db().collection("closet");
+            let someCursor = await closet.findOne({ id: id });
+            if (!someCursor) {
+                // forcibly move them in
+                await closet.insertOne({
+                    name: msg.author.username,
+                    id: msg.author.id,
+                    ft: defaultFt
+                } as tenant);
+                channel.send(`${msg.author.username} has been forcibly moved into the closet!`)
+                someCursor = await closet.findOne({ id: id }); // find again
+            }
+
+            if (someCursor) {
+                // deduct square feet
+                const decrease = RandomFt(5);
+                const newFootage = parseFloat((someCursor.ft - decrease).toFixed(5));
+                await closet.updateOne({ id: id }, {
+                    $set: {
+                        ft: newFootage
+                    }
+                });
+                channel.send(`**HEY YOU! YOU AREN'T THE LANDLORD!** <@${landlordID}>!! This is an **illegal** move by ${someCursor.name}.\n\n**${someCursor.name}** now has **${newFootage} ft^2** now. That's a **${decrease} decrease** in ft^2. Serves you right.`);
+            }
         }
     }
 });
@@ -134,12 +152,9 @@ client.login(process.env.DISCORD_BOT_TOKEN);
 
 /**
  * Future features
- * - Gambling (guessing a coin flip result) and putting in money
- *      - Check if user is part of the closet and has not gambled in the past hour
- *      - Every hour reset the gambling cooldown
- *      - Parse command to get the guess and the amount wagered
- *      - RNG 1 or 2 and send the appropriate GIF and then delete it, or have the bot mass edit its own comment until it lands on the actual guess)
+ * - slots
  * - Rent (?)
  * - Trading square feet for money
  * - Donating money and/or square feet
+ * - Titles
  */
