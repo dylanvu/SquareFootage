@@ -92,6 +92,12 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
                 channel.send(`**${userCursor.name}**, both a result and an amount of money to bet must be specified`);
                 return;
             } else {
+                // check if the user owes money
+                if (userCursor.money < 0) {
+                    channel.send(`**${userCursor.name}**, you can't gamble while owing **$${-1 * userCursor.money}**! Go to work you bum. (Or ask the landlord to reset your money if the debt is impossible to pay off)`);
+                    return;
+                }
+
                 // check inputs
                 const moneyBet = parseInt(args[1]); // moneybet
                 const outcomeBet = args[0].toLowerCase(); // result bet
