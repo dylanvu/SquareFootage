@@ -68,8 +68,8 @@ client.on('messageCreate', async (msg: Discord.Message) => {
     // console.log(msg.content);
     // console.log(msg.author);
     // console.log(ParseMention(msg.content));
-    // prevent the bot from listening to itself
-    if (msg.author.id !== selfID) {
+    // prevent the bot from listening to itself and to make sure each and every text starts with ! as a command
+    if (msg.author.id !== selfID && msg.content.at(0) === "!") {
         const channel = client.channels.cache.get(msg.channelId) as Discord.TextChannel;
         if (msg.content === "!tenants") {
             showTenants(mongoclient, channel);
@@ -152,9 +152,9 @@ client.login(process.env.DISCORD_BOT_TOKEN);
 
 /**
  * Future features
- * - slots
+ * - slots (with an expected value of 0)
  * - Rent (?)
- * - Trading square feet for money
+ * - Trading square feet for money and vice versa
  * - Donating money and/or square feet
- * - Titles
+ * - !$$$ money giving command for landlord (refactor code to be identical to the !ft)
  */
