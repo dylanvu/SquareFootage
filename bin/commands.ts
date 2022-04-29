@@ -213,14 +213,15 @@ export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.Tex
                     const currSlot = userCursor.slotCount;
                     const oldMoney = userCursor.money;
                     // proceess the score
+                    // expected value is like +$126
                     if (win && jackpot) {
                         // jackpot payout
-                        adjustment = -1 * adjustment * 7961; // large payout for an expected value of 0
+                        adjustment = -1 * adjustment * 400000;
                         // this is about a 0.0125% chance of happening
                         channel.send(`**${userCursor.name}**, JACKPOT!! :${slotSymbols[0]}: :${slotSymbols[0]}: :${slotSymbols[0]}: \nYou made **$${adjustment.toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account!\n\nYou can roll slots **${maxSlots - (currSlot + 1)}** more times this hour.`);
                     } else if (win) {
                         // normal payout
-                        adjustment = -1 * adjustment;
+                        adjustment = -1 * adjustment * 2000;
                         channel.send(`**${userCursor.name}**, you WIN! You made **$${adjustment.toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account!\n\nYou can roll slots **${maxSlots - (currSlot + 1)}** more times this hour.`);
                     } else {
                         channel.send(`**${userCursor.name}**, you didn't win. You lost **$${(-1 * adjustment).toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account... rip\n\nYou can roll slots **${maxSlots - (currSlot + 1)}** more times this hour.`);
