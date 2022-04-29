@@ -185,9 +185,9 @@ export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.Tex
                 } else {
                     // create the finished outcome
                     const outcome: number[] = [];
-                    outcome.push(randomNumber(0, slotSymbols.length));
-                    outcome.push(randomNumber(0, slotSymbols.length));
-                    outcome.push(randomNumber(0, slotSymbols.length));
+                    outcome.push(randomNumber(0, slotSymbols.length - 1));
+                    outcome.push(randomNumber(0, slotSymbols.length - 1));
+                    outcome.push(randomNumber(0, slotSymbols.length - 1));
                     console.log(`Slot roll by ${userCursor.name}`, outcome);
                     let win = false; // flag if won
                     let jackpot = false;
