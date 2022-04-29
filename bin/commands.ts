@@ -188,7 +188,7 @@ export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.Tex
                     outcome.push(randomNumber(0, slotSymbols.length));
                     outcome.push(randomNumber(0, slotSymbols.length));
                     outcome.push(randomNumber(0, slotSymbols.length));
-
+                    console.log(`Slot roll by ${userCursor.name}`, outcome);
                     let win = false; // flag if won
                     let jackpot = false;
                     let adjustment = -1 * moneyBet; // how much to add or subtract by
@@ -380,7 +380,7 @@ export const buy = async (mongoclient: mongo.MongoClient, channel: Discord.TextC
                             money: oldMoney - deduction
                         }
                     });
-                    channel.send(`Congratulations, **${userCursor.name}**, you have $${oldMoney - deduction} left but also have a brand new title to flex on people: **${roleToPurchase}**`)
+                    channel.send(`Congratulations, **${userCursor.name}**, you have **$${(oldMoney - deduction).toLocaleString()}** left but also have a brand new title to flex on people: **${roleToPurchase}**`)
                 } else {
                     await channel.send(`**${userCursor.name}**, you're too poor to buy that title! Go gamble or work some more.`);
                 }
