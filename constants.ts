@@ -20,6 +20,31 @@ export const heads = ["h", "heads", "head"];
 export const tails = ["t", "tails", "tail"];
 export const validGamblingArgs: string[] = heads.concat(tails); // valid arguments to gamble to check. Should be lowercase.
 
+export const slotSymbols = [ // symbols to put in the slot machine
+    "tangerine", // this first one will be the jackpot
+    "lemon",
+    "cherries",
+    "tangerine",
+    "banana",
+    "apple",
+    "watermelon",
+    "pear",
+    "strawberry",
+    "broccoli",
+    "onion",
+    "garlic",
+    "leafy_green",
+    "carrot",
+    "salad",
+    "pineapple",
+    "kiwi",
+    "coconut",
+    "mango",
+    "peach"
+]
+
+export const maxSlots: number = 10; // maximum number of times a tenant can roll slots per hour
+
 // lists of things
 
 // roles able to be bought

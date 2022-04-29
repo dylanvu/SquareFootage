@@ -4,5 +4,6 @@ export interface tenant {
     ft: number, // number of square feet
     money: number, // amount of money owned
     worked: boolean, // whether the person has worked in the past hour
-    gambleCount: number // number of times gambled in the past hour
+    gambleCount: number, // number of times gambled in the past hour
+    slotCount: number, // the number of times slots were rolled in the past hour
 }

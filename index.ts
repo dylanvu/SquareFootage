@@ -6,7 +6,8 @@ import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
-import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble, roleSetup, roleCleanup, buy } from './bin/commands';
+import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble, roleSetup, roleCleanup, buy, slots } from './bin/commands';
+import { createTenant } from './bin/mongo';
 const { exec } = require("child_process");
 
 dotenv.config();
@@ -77,6 +78,8 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             work(mongoclient, channel, msg)
         } else if (msg.content.includes("!gamble")) {
             gamble(mongoclient, channel, msg);
+        } else if (msg.content.includes("!slots")) {
+            slots(mongoclient, channel, msg);
         } else if (msg.content.includes("!buy")) {
             buy(mongoclient, channel, msg)
         } else if (msg.author.id === landlordID) {
@@ -116,11 +119,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             let someCursor = await closet.findOne({ id: id });
             if (!someCursor) {
                 // forcibly move them in
-                await closet.insertOne({
-                    name: msg.author.username,
-                    id: msg.author.id,
-                    ft: defaultFt
-                } as tenant);
+                await createTenant(closet, msg.author.id, msg.author.username);
                 channel.send(`${msg.author.username} has been forcibly moved into the closet!`)
                 someCursor = await closet.findOne({ id: id }); // find again
             }

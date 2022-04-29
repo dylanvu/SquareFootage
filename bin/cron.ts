@@ -10,7 +10,8 @@ export const reset = async (mongoclient: mongo.MongoClient): Promise<void> => {
         closet.updateMany({}, {
             $set: {
                 worked: false,
-                gambleCount: 0
+                gambleCount: 0,
+                slotCount: 0
             }
         })
     } catch (error) {

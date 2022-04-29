@@ -1,9 +1,8 @@
 import * as mongo from 'mongodb';
 import * as Discord from 'discord.js';
-import { jobs, defaultFt, defaultMoney, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails, roles, costPerSqFt } from '../constants';
+import { jobs, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails, roles, costPerSqFt, maxSlots, slotSymbols } from '../constants';
 import { ParseMention, SplitArgs, RandomFt, randomNumber, roundToDecimal } from './util';
-import { tenant } from '../interface';
-import e from 'express';
+import { createTenant } from './mongo';
 
 /**
  * Send a single embed of all the tenants in the closet
@@ -151,6 +150,94 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
         }
     }
     // TODO: create like an array of length 10 and then spam edit with alternating heads/tails to simulate flipping, then end on **result** in bold. Maybe about 5 edits per second -> 3 seconds in length?
+}
+
+export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
+    // check if user is in the closet
+    const id = msg.author.id;
+    let closet = await mongoclient.db().collection("closet");
+    const userCursor = await closet.findOne({ id: id });
+    if (!userCursor) {
+        msg.reply(`You don't appear to own square feet in ${landlordName}'s closet! Ask him to move you in before you can gamble.`)
+    } else {
+        // check if person has gambled the maximum number of times already
+        if (userCursor.slotCount >= maxSlots) {
+            channel.send(`**${userCursor.name}**, you've already gambled too much this hour! Let's not develop any gambling addictions, ok? :D`);
+            console.log(`${userCursor.name} has already rolled slots the maximum amount of times`)
+        } else {
+            // arguments should be like: !slots <amount>
+            const args = SplitArgs(msg.content);
+            if (args.length < 1) {
+                channel.send(`**${userCursor.name}**, an amount of money to bet must be specified`);
+                return;
+            } else {
+                // check if the user owes money
+                if (userCursor.money < 0) {
+                    channel.send(`**${userCursor.name}**, you can't roll slots while owing **$${(-1 * userCursor.money).toLocaleString()}**! Go to work you bum. (Or ask the landlord to reset your money if the debt is impossible to pay off)`);
+                    return;
+                }
+
+                // check inputs
+                const moneyBet = parseInt(args[0]); // moneybet
+                if (isNaN(moneyBet)) {
+                    // check if bet is a number
+                    channel.send(`**${userCursor.name}**, ${moneyBet} is not a number.`);
+                } else {
+                    // create the finished outcome
+                    const outcome: number[] = [];
+                    outcome.push(randomNumber(0, slotSymbols.length));
+                    outcome.push(randomNumber(0, slotSymbols.length));
+                    outcome.push(randomNumber(0, slotSymbols.length));
+
+                    let win = false; // flag if won
+                    let jackpot = false;
+                    let adjustment = -1 * moneyBet; // how much to add or subtract by
+
+                    // check if we have a match
+                    if (outcome.filter((num) => num === outcome[0]).length === outcome.length) {
+                        // all numbers are the same
+                        // check if jackpot is won, which is all 0's
+                        win = true;
+                        if (outcome[0] === 0) {
+                            jackpot = true;
+                        }
+                    }
+
+                    // send results to channel
+                    let message = "";
+                    for (const symbol of outcome) {
+                        message = message + `:${slotSymbols[symbol]}: `
+                    }
+                    channel.send(message);
+
+                    const currSlot = userCursor.slotCount;
+                    const oldMoney = userCursor.money;
+                    // proceess the score
+                    if (win && jackpot) {
+                        // jackpot payout
+                        adjustment = -1 * adjustment * 7961; // large payout for an expected value of 0
+                        // this is about a 0.0125% chance of happening
+                        channel.send(`**${userCursor.name}**, JACKPOT!! :${slotSymbols[0]}: :${slotSymbols[0]}: :${slotSymbols[0]}: \nYou made **$${adjustment.toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account!\n\nYou can roll slots **${maxSlots - (currSlot + 1)}** more times this hour.`);
+                    } else if (win) {
+                        // normal payout
+                        adjustment = -1 * adjustment;
+                        channel.send(`**${userCursor.name}**, you WIN! You made **$${adjustment.toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account!\n\nYou can roll slots **${maxSlots - (currSlot + 1)}** more times this hour.`);
+                    } else {
+                        channel.send(`**${userCursor.name}**, you didn't win. You lost **$${(-1 * adjustment).toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account... rip\n\nYou can roll slots **${maxSlots - (currSlot + 1)}** more times this hour.`);
+                    }
+                    // adjustment is negative
+
+                    // increment gambling count and adjust money
+                    await closet.updateOne({ id: id }, {
+                        $set: {
+                            slotCount: currSlot + 1,
+                            money: oldMoney + adjustment
+                        }
+                    });
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -335,13 +422,7 @@ export const movein = async (collection: mongo.Collection, channel: Discord.Text
         if (someCursor) {
             channel.send(`${name} has already moved into the closet!`);
         } else {
-            await collection.insertOne({
-                id: id,
-                name: name,
-                ft: defaultFt,
-                money: defaultMoney,
-                worked: false
-            } as tenant);
+            await createTenant(collection, id, name);
             // send verification message
             channel.send(`**${name}** has moved into ${landlordName}'s closet!`);
         }
