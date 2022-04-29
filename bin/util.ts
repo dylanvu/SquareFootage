@@ -53,3 +53,13 @@ export const RandomFt = (weight: number): number => {
 export const randomNumber = (low: number, high: number): number => {
     return Math.floor(Math.random() * (high - low + 1) + low)
 }
+
+/**
+ * Rounds a number to a certain number of decimal places
+ * @param num number to round
+ * @param places number of decimal places to round to
+ * @returns number rounded to that many decimal places
+ */
+export const roundToDecimal = (num: number, places: number): number => {
+    return parseFloat(num.toFixed(places));
+}

@@ -1,8 +1,9 @@
 import * as mongo from 'mongodb';
 import * as Discord from 'discord.js';
-import { jobs, defaultFt, defaultMoney, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails, roles } from '../constants';
-import { ParseMention, SplitArgs, RandomFt, randomNumber } from './util';
+import { jobs, defaultFt, defaultMoney, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails, roles, costPerSqFt } from '../constants';
+import { ParseMention, SplitArgs, RandomFt, randomNumber, roundToDecimal } from './util';
 import { tenant } from '../interface';
+import e from 'express';
 
 /**
  * Send a single embed of all the tenants in the closet
@@ -61,7 +62,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
                     worked: true
                 }
             });
-            channel.send(`**${userCursor.name}** ${jobs[Math.floor(Math.random() * jobs.length)]}. They made $${newMoney} and now have $${oldMoney + newMoney} in their bank account!`)
+            channel.send(`**${userCursor.name}** ${jobs[Math.floor(Math.random() * jobs.length)]}. They made **$${newMoney}** and now have **$${oldMoney + newMoney}** in their bank account!`)
         }
     }
 }
@@ -178,7 +179,7 @@ export const buy = async (mongoclient: mongo.MongoClient, channel: Discord.TextC
         let i = 0;
         let embed: Discord.MessageEmbed = new Discord.MessageEmbed().setColor("#F1C40F");
         embed.setTitle(`Possible Roles to Buy and Price`);
-        embed.setDescription('Use !buy [role name] (case and space sensitive) to purchase a title');
+        embed.setDescription('Use !buy [role name] (case and space sensitive) to purchase a title\nUse !buy sq $[number] OR !buy sq [number] ft to either convert money to square feet, or buy a certain amount of square feet');
         for (const role of roles) {
             embed.addField(role.role, `$${(role.price).toLocaleString()}`);
             i++
@@ -195,6 +196,67 @@ export const buy = async (mongoclient: mongo.MongoClient, channel: Discord.TextC
         // send list of roles to channel
         for (const embed of embeds) {
             await channel.send({ embeds: [embed] });
+        }
+    } else if (args[0] === "sq") {
+        // buying square feet, second argument is the  amount of money to spend on square feet
+        if (args.length < 2) {
+            channel.send(`**${userCursor.name}**, you need to specify the money to convert to square feet!`)
+        } else {
+            // check if either ft or $ is specified
+            if (args.length >= 3) {
+                // check if third argument is "ft"
+                if (args[2] === "ft" || args[2] === "ft^2" || args[2] === "sq") {
+                    // check if the user has enough money
+                    const newSq = parseInt(args[1])
+                    if (isNaN(newSq)) {
+                        channel.send(`**${userCursor.name}**, ${args[1]} is not a number. I can't give you square feet like this.`);
+                    } else {
+                        const cost = newSq * costPerSqFt;
+                        // check if there is enough money for the user
+                        const balance = userCursor.money;
+                        if (balance < cost) {
+                            channel.send(`**${userCursor.name}**, You don't have enough money to buy **${newSq}** ft^2. You need to have **$${cost.toLocaleString()}** in your bank account.`)
+                        } else {
+                            // deduct money and set
+                            const oldMoney = userCursor.money;
+                            const oldSq = userCursor.ft;
+                            await collection.updateOne({ id: id }, {
+                                $set: {
+                                    ft: oldSq + newSq,
+                                    money: oldMoney - cost
+                                }
+                            });
+                            channel.send(`**${userCursor.name}**, congratulations! You bought **${newSq}** ft^2 and now have **${oldSq + newSq}** ft^2 in the closet!`)
+                        }
+                    }
+                } else {
+                    channel.send(`**${userCursor.name}**, are you buying square feet? If so, please have "ft" or "ft^2" after your number, like: \`!buy sq 10 ft\``)
+                }
+            } else {
+                // check if we have a dollar sign
+                if (args[1].includes("$")) {
+                    // parse out the $ then convert to money
+                    let moneyArg = args[1];
+                    moneyArg = moneyArg.replace("$", "");
+                    // parse out the amount
+                    const toSpend = parseInt(moneyArg);
+                    if (isNaN(toSpend)) {
+                        channel.send(`**${userCursor.name}**, you need to input a valid amount of money to convert to square feet!`)
+                    } else {
+                        // calculate the square feet and update mongoDB
+                        const newSq = roundToDecimal(toSpend / costPerSqFt, 3);
+                        const oldSq = userCursor.ft;
+                        await collection.updateOne({ id: id }, {
+                            $set: {
+                                ft: oldSq + newSq
+                            }
+                        });
+                        channel.send(`**${userCursor.name}**, congratulations! You bought **${newSq} ft^2** and now have **${oldSq + newSq} ft^2** in the closet!`)
+                    }
+                } else {
+                    channel.send(`**${userCursor.name}**, are you trying to buy square feet using ${args[1]} dollars? If so, please have "$" in front of the number, like: \`!buy sq $10\``)
+                }
+            }
         }
     } else {
         // turn the array of objects into an array of strings for the role name and array of numbers for the price. Same index.
@@ -363,7 +425,7 @@ export const upgrade = async (collection: mongo.Collection, channel: Discord.Tex
         channel.send("That person you're increasing square feet of doesn't seem to have moved in yet!");
     } else {
         // increase feet
-        const newFootage = parseFloat((someCursor.ft + increase).toFixed(3));
+        const newFootage = roundToDecimal(someCursor.ft + increase, 3);
         await collection.updateOne({ id: id }, {
             $set: {
                 ft: newFootage
@@ -412,7 +474,7 @@ export const downgrade = async (collection: mongo.Collection, channel: Discord.T
         channel.send("That person you're reducing the square feet of doesn't seem to have moved in yet!");
     } else {
         // increase feet
-        const newFootage = parseFloat((someCursor.ft - decrease).toFixed(3));
+        const newFootage = roundToDecimal(someCursor.ft - decrease, 3);
         await collection.updateOne({ id: id }, {
             $set: {
                 ft: newFootage
@@ -445,7 +507,7 @@ export const ft = async (collection: mongo.Collection, channel: Discord.TextChan
         channel.send("That person you're changing the square feet of doesn't seem to have moved in yet!");
     } else {
         // parse out the number
-        const newFootage = parseFloat(parseFloat(args[0]).toFixed(3)); // this is kinda horrific
+        const newFootage = roundToDecimal(parseFloat(args[0]), 3); // a bit weird but the message content is a string, so need to convert to number then round
         if (newFootage === NaN) {
             channel.send(args[0] + " isn't a number you fool!");
             return;
