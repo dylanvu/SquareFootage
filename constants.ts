@@ -134,6 +134,10 @@ export const roles: { role: string, price: number }[] = [
         price: 200000
     },
     {
+        role: "Prospective Dropout",
+        price: 200000
+    },
+    {
         role: "Certified Medical Doctor",
         price: 350000
     },
