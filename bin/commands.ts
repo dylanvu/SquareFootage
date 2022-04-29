@@ -141,9 +141,9 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
                     });
                     // send the messages
                     if (win) {
-                        channel.send(`**${userCursor.name}**, you guessed correctly! You made **$${adjustment}** and now have **$${oldMoney + adjustment}** in your bank account!\n\nYou can gamble ${maxGamble - (currGamble + 1)} more times this hour.`);
+                        channel.send(`**${userCursor.name}**, you guessed correctly! You made **$${adjustment.toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account!\n\nYou can gamble ${maxGamble - (currGamble + 1)} more times this hour.`);
                     } else {
-                        channel.send(`**${userCursor.name}**, you guessed incorrectly. You lost **$${-1 * adjustment}** and now have **$${oldMoney + adjustment}** in your bank account... sadge\n\nYou can gamble ${maxGamble - (currGamble + 1)} more times this hour.`);
+                        channel.send(`**${userCursor.name}**, you guessed incorrectly. You lost **$${(-1 * adjustment).toLocaleString()}** and now have **$${(oldMoney + adjustment).toLocaleString()}** in your bank account... sadge\n\nYou can gamble ${maxGamble - (currGamble + 1)} more times this hour.`);
                     }
                 }
             }
