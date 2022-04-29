@@ -101,9 +101,9 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
                 // check inputs
                 const moneyBet = parseInt(args[1]); // moneybet
                 const outcomeBet = args[0].toLowerCase(); // result bet
-                if (isNaN(moneyBet)) {
+                if (isNaN(moneyBet) || moneyBet <= 0) {
                     // check if bet is a number
-                    channel.send(`**${userCursor.name}**, ${args[1]} is not a number.`);
+                    channel.send(`**${userCursor.name}**, ${args[1]} is not a valid number.`);
                 } else if (!validGamblingArgs.includes(outcomeBet)) {
                     // check if proposed outcome is valid
                     channel.send(`**${userCursor.name}**, ${outcomeBet} is not a valid option. Choose one of the following: ${validGamblingArgs}`);
@@ -179,9 +179,9 @@ export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.Tex
 
                 // check inputs
                 const moneyBet = parseInt(args[0]); // moneybet
-                if (isNaN(moneyBet)) {
+                if (isNaN(moneyBet) || moneyBet <= 0) {
                     // check if bet is a number
-                    channel.send(`**${userCursor.name}**, ${moneyBet} is not a number.`);
+                    channel.send(`**${userCursor.name}**, ${moneyBet} is not a valid number.`);
                 } else {
                     // create the finished outcome
                     const outcome: number[] = [];
