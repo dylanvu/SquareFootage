@@ -118,6 +118,10 @@ export const roles: { role: string, price: number }[] = [
         price: 15000
     },
     {
+        role: "Prospective Dropout",
+        price: 20000
+    },
+    {
         role: "Tesla Cybertruck Owner",
         price: 40000
     },
@@ -131,10 +135,6 @@ export const roles: { role: string, price: number }[] = [
     },
     {
         role: "I Could Have Bought 1,000 Square Feet But Instead I Have a Useless Title Flex",
-        price: 200000
-    },
-    {
-        role: "Prospective Dropout",
         price: 200000
     },
     {
