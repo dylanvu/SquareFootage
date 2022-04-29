@@ -103,7 +103,7 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
                 const outcomeBet = args[0].toLowerCase(); // result bet
                 if (isNaN(moneyBet)) {
                     // check if bet is a number
-                    channel.send(`**${userCursor.name}**, ${moneyBet} is not a number.`);
+                    channel.send(`**${userCursor.name}**, ${args[1]} is not a number.`);
                 } else if (!validGamblingArgs.includes(outcomeBet)) {
                     // check if proposed outcome is valid
                     channel.send(`**${userCursor.name}**, ${outcomeBet} is not a valid option. Choose one of the following: ${validGamblingArgs}`);

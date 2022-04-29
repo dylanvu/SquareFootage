@@ -43,7 +43,7 @@ export const slotSymbols = [ // symbols to put in the slot machine
     "peach"
 ]
 
-export const maxSlots: number = 10; // maximum number of times a tenant can roll slots per hour
+export const maxSlots: number = 10000; // maximum number of times a tenant can roll slots per hour
 
 // lists of things
 
