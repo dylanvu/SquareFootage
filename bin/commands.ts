@@ -61,7 +61,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
                     worked: true
                 }
             });
-            channel.send(`**${userCursor.name}** ${jobs[Math.floor(Math.random() * jobs.length)]}. They made **$${newMoney}** and now have **$${oldMoney + newMoney}** in their bank account!`)
+            channel.send(`**${userCursor.name}** ${jobs[Math.floor(Math.random() * jobs.length)]}. They made **$${newMoney.toLocaleString()}** and now have **$${oldMoney + newMoney}** in their bank account!`)
         }
     }
 }
