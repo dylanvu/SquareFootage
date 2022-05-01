@@ -121,7 +121,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                 // forcibly move them in
                 await createTenant(closet, msg.author.id, msg.author.username);
                 channel.send(`${msg.author.username} has been forcibly moved into the closet!`)
-                someCursor = await closet.findOne({ id: id }); // find again
+                someCursor = await closet.findOne({ id: id }); // try to find again
             }
 
             if (someCursor) {
