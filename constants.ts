@@ -24,13 +24,11 @@ export const slotSymbols = [ // symbols to put in the slot machine
     "tangerine", // this first one will be the jackpot
     "lemon",
     "cherries",
-    "tangerine",
     "banana",
     "apple",
     "watermelon",
     "pear",
     "strawberry",
-    "carrot",
     "pineapple",
     "kiwi",
     "coconut",
