@@ -196,7 +196,7 @@ export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.Tex
                     // check if we have a match
                     if (outcome.filter((num) => num === outcome[0]).length === outcome.length) {
                         // all numbers are the same
-                        // check if jackpot is won, which is all 0's
+                        // check if jackpot is won, which is all 0's set by default
                         win = true;
                         if (outcome[0] === 0) {
                             jackpot = true;
