@@ -1,12 +1,11 @@
-import { mongoDBcollection, defaultFt, landlordID, commandList, selfID } from './constants';
+import { mongoDBcollection, landlordID, commandList, selfID } from './constants';
 import { SplitArgsWithCommand, RandomFt } from './bin/util';
-import { tenant } from './interface';
 import { scheduleReset, reset } from './bin/cron';
 import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
-import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble, roleSetup, roleCleanup, buy, slots } from './bin/commands';
+import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble, roleSetup, roleCleanup, buy, slots, goStudy } from './bin/commands';
 import { createTenant } from './bin/mongo';
 const { exec } = require("child_process");
 
@@ -82,6 +81,8 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             slots(mongoclient, channel, msg);
         } else if (msg.content.includes("!buy")) {
             buy(mongoclient, channel, msg)
+        } else if (msg.content.includes("!gostudy")) {
+            goStudy(mongoclient, msg, channel);
         } else if (msg.author.id === landlordID) {
             let closet = await mongoclient.db().collection(mongoDBcollection);
             // only the landlord has full control of this bot

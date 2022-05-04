@@ -1,8 +1,52 @@
 import * as mongo from 'mongodb';
 import * as Discord from 'discord.js';
-import { jobs, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails, roles, costPerSqFt, maxSlots, slotSymbols } from '../constants';
+import { jobs, wage, range, maxGamble, landlordName, validGamblingArgs, heads, tails, roles, costPerSqFt, maxSlots, slotSymbols, mongoDBcollection } from '../constants';
 import { ParseMention, SplitArgs, RandomFt, randomNumber, roundToDecimal } from './util';
 import { createTenant } from './mongo';
+
+/**
+ * joke command to tell my friends to go study
+ * @param msg message to pull mentions from
+ * @param channel channel to send messages to
+ */
+export const goStudy = async (mongoclient: mongo.MongoClient, msg: Discord.Message, channel: Discord.TextChannel) => {
+    // find out who sent the message
+    // check if they're a tenant
+    let author = msg.author.username;
+    const collection = await mongoclient.db().collection(mongoDBcollection);
+    const authorId = msg.author.id;
+    const authorCursor = await collection.findOne({ id: authorId });
+    if (authorCursor) {
+        // use their name
+        author = authorCursor.name;
+    }
+
+    // parse out all mentions
+    let mentionArray: string[] = []
+    const args = SplitArgs(msg.content);
+    if (args.length > 1) {
+        // get out all mentions
+        for (const arg of args) {
+            const mention = ParseMention(arg);
+            if (mention) {
+                mentionArray.push(arg);
+            }
+        }
+        // send the message
+        let message: string;
+        if (mentionArray.length > 1) {
+            message = `Hey guys! **${author}** is telling you all to go study! `;
+        } else {
+            message = `Hey you! **${author}** is telling you to go study! `;
+        }
+        for (const mention of mentionArray) {
+            message = message + `${mention}! `
+        }
+        channel.send(message);
+    } else {
+        channel.send(`Who are you trying to make study, ${author}? Maybe you should go study!`)
+    }
+}
 
 /**
  * Send a single embed of all the tenants in the closet
@@ -10,7 +54,7 @@ import { createTenant } from './mongo';
  * @param channel channel to send message to
  */
 export const showTenants = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel) => {
-    let closet = await mongoclient.db().collection("closet");
+    let closet = await mongoclient.db().collection(mongoDBcollection);
     // get list of all tenants and square footage, anyone can do this !tenants
     // embed message
     let embed: Discord.MessageEmbed = new Discord.MessageEmbed().setColor("#F1C40F")
@@ -42,7 +86,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
     // check if the person is in debt
     // give them the appropriate amount
     const id = msg.author.id;
-    let closet = await mongoclient.db().collection("closet");
+    let closet = await mongoclient.db().collection(mongoDBcollection);
     const userCursor = await closet.findOne({ id: id });
     if (!userCursor) {
         msg.reply(`You don't appear to own square feet in ${landlordName}'s closet! Ask him to move you in.`)
@@ -76,7 +120,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
 export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
     // check if user is in the closet
     const id = msg.author.id;
-    let closet = await mongoclient.db().collection("closet");
+    let closet = await mongoclient.db().collection(mongoDBcollection);
     const userCursor = await closet.findOne({ id: id });
     if (!userCursor) {
         msg.reply(`You don't appear to own square feet in ${landlordName}'s closet! Ask him to move you in before you can gamble.`)
@@ -155,7 +199,7 @@ export const gamble = async (mongoclient: mongo.MongoClient, channel: Discord.Te
 export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
     // check if user is in the closet
     const id = msg.author.id;
-    let closet = await mongoclient.db().collection("closet");
+    let closet = await mongoclient.db().collection(mongoDBcollection);
     const userCursor = await closet.findOne({ id: id });
     if (!userCursor) {
         msg.reply(`You don't appear to own square feet in ${landlordName}'s closet! Ask him to move you in before you can gamble.`)
@@ -250,7 +294,7 @@ export const slots = async (mongoclient: mongo.MongoClient, channel: Discord.Tex
 export const buy = async (mongoclient: mongo.MongoClient, channel: Discord.TextChannel, msg: Discord.Message) => {
     // !buy
     // check if user is part of the closet
-    const collection = await mongoclient.db().collection("closet");
+    const collection = await mongoclient.db().collection(mongoDBcollection);
     const id = msg.author.id;
     const member = msg.member;
     const userCursor = await collection.findOne({ id: id });
