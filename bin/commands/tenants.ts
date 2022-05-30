@@ -57,7 +57,7 @@ export const howAreYou = async (mongoclient: mongo.MongoClient, msg: Discord.Mes
                 count: document.count + 1
             }
         });
-        channel.send(`${document.count + 1}`);
+        channel.send(`${document.count + 1} times Ariel. ${document.count + 1} times.`);
     } else {
         channel.send(`There was an issue updating Ariel's "So how are you guys doing today?". Blame Dylan for bad code D:`);
     }
