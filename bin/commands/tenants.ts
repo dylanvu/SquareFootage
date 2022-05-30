@@ -47,6 +47,22 @@ export const goStudy = async (mongoclient: mongo.MongoClient, msg: Discord.Messa
     }
 }
 
+
+export const howAreYou = async (mongoclient: mongo.MongoClient, msg: Discord.Message, channel: Discord.TextChannel) => {
+    let collection = await mongoclient.db().collection("ariel");
+    const document = await collection.findOne();
+    if (document) {
+        await collection.updateOne({}, {
+            $set: {
+                count: document.count + 1
+            }
+        });
+        channel.send(`${document.count + 1}`);
+    } else {
+        channel.send(`There was an issue updating Ariel's "So how are you guys doing today?". Blame Dylan for bad code D:`);
+    }
+}
+
 /**
  * Send a single embed of all the tenants in the closet
  * @param mongoclient MongoDB client
