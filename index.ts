@@ -5,7 +5,9 @@ import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
-import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble, roleSetup, roleCleanup, buy, slots, goStudy } from './bin/commands';
+import { showTenants, work, buy, goStudy } from './bin/commands/tenants';
+import { gamble, slots } from './bin/commands/gambling';
+import { movein, evict, upgrade, downgrade, roleSetup, roleCleanup } from './bin/commands/landlord';
 import { createTenant, alterData } from './bin/mongo';
 const { exec } = require("child_process");
 
