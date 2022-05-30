@@ -105,7 +105,7 @@ export const work = async (mongoclient: mongo.MongoClient, channel: Discord.Text
                     worked: true
                 }
             });
-            channel.send(`**${userCursor.name}**, You went to work! You ${jobs[Math.floor(Math.random() * jobs.length)]}. You made **$${newMoney.toLocaleString()}** and now have **$${(oldMoney + newMoney).toLocaleString()}** in your bank account!`)
+            channel.send(`**${userCursor.name}**, you ${jobs[Math.floor(Math.random() * jobs.length)]}. You made **$${newMoney.toLocaleString()}** and now have **$${(oldMoney + newMoney).toLocaleString()}** in your bank account!`)
         }
     }
 }
@@ -614,7 +614,7 @@ export const downgrade = async (collection: mongo.Collection, channel: Discord.T
 }
 
 /**
- * directly set a user's square footage
+ * directly set a user's square footage !ft
  * @param collection mongodb collection to modify user stats
  * @param channel discord channel to send the feedback to 
  * @param msg message object to parse the user mention out of to modify the square footage of
