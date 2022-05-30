@@ -6,7 +6,7 @@ import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
 import { showTenants, work, movein, evict, upgrade, downgrade, ft, gamble, roleSetup, roleCleanup, buy, slots, goStudy } from './bin/commands';
-import { createTenant } from './bin/mongo';
+import { createTenant, alterData } from './bin/mongo';
 const { exec } = require("child_process");
 
 dotenv.config();
@@ -95,7 +95,10 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             } else if (msg.content.includes("!downgrade")) {
                 downgrade(closet, channel, msg);
             } else if (msg.content.includes("!ft")) {
-                ft(closet, channel, msg);
+                // ft(closet, channel, msg);
+                alterData(closet, channel, msg, "square feet");
+            } else if (msg.content.includes("!money")) {
+                alterData(closet, channel, msg, "money");
             } else if (msg.content === "!resethourly") {
                 reset(mongoclient);
                 channel.send("Labor and gambling should have been reset! Everyone should be able to work and gamble again.");
