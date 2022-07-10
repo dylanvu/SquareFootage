@@ -63,6 +63,23 @@ export const howAreYou = async (mongoclient: mongo.MongoClient, msg: Discord.Mes
     }
 }
 
+export const sigh = async (mongoclient: mongo.MongoClient, msg: Discord.Message, channel: Discord.TextChannel) => {
+    let collection = await mongoclient.db().collection("sigh");
+    // parse arguments for names
+    const names = SplitArgs(msg.content);
+    const date = new Date(Date.now())
+    // write a new document
+    try {
+        await collection.insertOne({
+            time: date,
+            names: names
+        });
+        channel.send(`sigh. It has been recorded: a sigh on ${date} with ${names}`);
+    } catch (e) {
+        channel.send(`sigh. There was an error: ${e}`);
+    }
+}
+
 /**
  * Send a single embed of all the tenants in the closet
  * @param mongoclient MongoDB client
