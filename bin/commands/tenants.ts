@@ -64,7 +64,7 @@ export const howAreYou = async (mongoclient: mongo.MongoClient, msg: Discord.Mes
 }
 
 export const sigh = async (mongoclient: mongo.MongoClient, msg: Discord.Message, channel: Discord.TextChannel) => {
-    let collection = await mongoclient.db().collection("sigh");
+    let collection = mongoclient.db().collection("sigh");
     // parse arguments for names
     const names = SplitArgs(msg.content);
     const date = new Date(Date.now())

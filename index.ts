@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
 import * as mongo from 'mongodb';
 import express from 'express';
-import { showTenants, work, buy, goStudy, howAreYou } from './bin/commands/tenants';
+import { showTenants, work, buy, goStudy, howAreYou, sigh } from './bin/commands/tenants';
 import { gamble, slots } from './bin/commands/gambling';
 import { movein, evict, upgrade, downgrade, roleSetup, roleCleanup } from './bin/commands/landlord';
 import { createTenant, alterData } from './bin/mongo';
@@ -87,6 +87,8 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             goStudy(mongoclient, msg, channel);
         } else if (msg.content === "!howareyou") {
             howAreYou(mongoclient, msg, channel);
+        } else if (msg.content.includes("!sigh")) {
+            sigh(mongoclient, msg, channel);
         } else if (msg.author.id === landlordID) {
             let closet = await mongoclient.db().collection(mongoDBcollection);
             // only the landlord has full control of this bot
