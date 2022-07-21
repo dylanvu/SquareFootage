@@ -55,6 +55,16 @@ export const randomNumber = (low: number, high: number): number => {
 }
 
 /**
+ * randomly picks a string
+ * @param arr array of strings to randomly select from
+ */
+export const randomPhrase = (arr: string[]): string => {
+    const index = randomNumber(0, arr.length - 1);
+    return arr[index];
+
+}
+
+/**
  * Rounds a number to a certain number of decimal places
  * @param num number to round
  * @param places number of decimal places to round to

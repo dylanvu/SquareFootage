@@ -1,5 +1,5 @@
 import { mongoDBcollection, landlordID, commandList, selfID } from './constants';
-import { SplitArgsWithCommand, RandomFt } from './bin/util';
+import { SplitArgsWithCommand, RandomFt, randomNumber, randomPhrase } from './bin/util';
 import { scheduleReset, reset } from './bin/cron';
 import * as dotenv from 'dotenv';
 import * as Discord from 'discord.js';
@@ -89,8 +89,6 @@ client.on('messageCreate', async (msg: Discord.Message) => {
             howAreYou(mongoclient, msg, channel);
         } else if (msg.content.includes("!sigh")) {
             sigh(mongoclient, msg, channel);
-        } else if ((msg.content.toLowerCase()).includes("i love life")) {
-            channel.send(":cross:  Live  :cross:    :rofl:  Laugh :rofl:    :heart:  Love :heart:");
         } else if (msg.author.id === landlordID) {
             let closet = await mongoclient.db().collection(mongoDBcollection);
             // only the landlord has full control of this bot
@@ -148,8 +146,26 @@ client.on('messageCreate', async (msg: Discord.Message) => {
                 channel.send(`**HEY YOU! YOU AREN'T THE LANDLORD!** <@${landlordID}>!! This is an **illegal** move by ${someCursor.name}.\n\n**${someCursor.name}** now has **${newFootage} ft^2** now. That's a **${decrease} decrease** in ft^2. Serves you right.`);
             }
         }
+    } else if (msg.author.id !== selfID) {
+        const channel = client.channels.cache.get(msg.channelId) as Discord.TextChannel;
+        const msgContent = msg.content.toLowerCase();
+        // joke for Ariel
+        if (msgContent.includes("i love life")) {
+            channel.send(":cross:  Live  :cross:    :rofl:  Laugh :rofl:    :heart:  Love :heart:");
+        }
+        if (msgContent === "live") {
+            liveLaughLove(channel, ["laugh", "love"]);
+        } else if (msgContent === "laugh") {
+            liveLaughLove(channel, ["live", "love"]);
+        } else if (msgContent === "love") {
+            liveLaughLove(channel, ["live", "laugh"]);
+        }
     }
 });
+
+function liveLaughLove(channel: Discord.TextChannel, arr: string[]) {
+    channel.send(randomPhrase(arr));
+}
 
 // debug
 client.on('debug', debug => {
