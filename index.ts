@@ -90,7 +90,7 @@ client.on('messageCreate', async (msg: Discord.Message) => {
         } else if (msg.content.includes("!sigh")) {
             sigh(mongoclient, msg, channel);
         } else if (msg.content.toLowerCase().includes("i love life")) {
-            msg.reply(":cross:  Live  :cross:    :rofl:  Laugh :rofl:    :heart:  Love :heart:");
+            channel.send(":cross:  Live  :cross:    :rofl:  Laugh :rofl:    :heart:  Love :heart:");
         } else if (msg.author.id === landlordID) {
             let closet = await mongoclient.db().collection(mongoDBcollection);
             // only the landlord has full control of this bot
